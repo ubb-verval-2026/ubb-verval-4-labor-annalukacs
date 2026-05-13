@@ -122,8 +122,9 @@ public class PersonPageTests
         salaryAfterSubmission.Should().BeApproximately(expectedSalary, 0.001);
     }
 
-    [Test]
-    public void Person_SalaryIncrease_BelowMinusTen_ShowsValidationErrors()
+    [TestCase(-10)]
+    [TestCase(-11)]
+    public void Person_SalaryIncrease_InvalidNegativePercentage_ShowsValidationErrors(double invalidPercentage)
     {
         // Arrange
         driver.Navigate().GoToUrl(BaseURL);
@@ -131,7 +132,7 @@ public class PersonPageTests
 
         var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
 
-        EnterSalaryIncreasePercentage(wait, "-11");
+        EnterSalaryIncreasePercentage(wait, invalidPercentage.ToString(CultureInfo.InvariantCulture));
         driver.FindElement(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']")).SendKeys(Keys.Tab);
 
         // Act
@@ -149,6 +150,7 @@ public class PersonPageTests
         var salaryAfterSubmission = double.Parse(salaryLabel.Text);
         salaryAfterSubmission.Should().BeApproximately(5000, 0.001);
     }
+
 
     private void EnterSalaryIncreasePercentage(WebDriverWait wait, string value)
     {

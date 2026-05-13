@@ -2,6 +2,11 @@
 @using System.ComponentModel.DataAnnotations
 @rendermode InteractiveServer
 
+<style>
+    .validation-errors { color: red; }
+    .validation-message { color: red; }
+</style>
+
 <PageTitle>Person</PageTitle>
 
 
@@ -69,7 +74,31 @@
     public class FormModel
     {
         [Required(ErrorMessage = "Percentage should be specified")]
-        [Range(-10d, Double.MaxValue, ErrorMessage = "The specified percentag should be between -10 and infinity.")]
+        [GreaterThan(-10d, ErrorMessage = "The specified percentag should be between -10 and infinity.")]
         public double SalaryIncreasePercentage { get; set; } = 0;
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+    public class GreaterThanAttribute : ValidationAttribute
+    {
+        private readonly double _minValue;
+
+        public GreaterThanAttribute(double minValue)
+        {
+            _minValue = minValue;
+        }
+
+        public override bool IsValid(object value)
+        {
+            if (value is null)
+                return true;
+
+            if (value is double d)
+            {
+                return d > _minValue;
+            }
+
+            return false;
+        }
     }
 }
