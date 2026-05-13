@@ -12,7 +12,9 @@
 
 <EditForm Model="@formModel" OnValidSubmit="@HandleOnValidSubmit">
     <DataAnnotationsValidator />
-    <ValidationSummary />
+    <div class="validation-errors">
+        <ValidationSummary />
+    </div>
 
     <h1>@person.Name</h1>
 
@@ -25,7 +27,9 @@
         <label class="col-md-2 col-form-label">Salary increase percentage: <span class="text-danger">*</span></label>
         <div class="col-md-10">
             <InputNumber @bind-Value="@formModel.SalaryIncreasePercentage" Placeholder="Enter a percentage value" data-test="SalaryIncreasePercentageInput" />
-            <ValidationMessage For="@(() => formModel.SalaryIncreasePercentage)" />
+            <div class="validation-message">
+                <ValidationMessage For="@(() => formModel.SalaryIncreasePercentage)" />
+            </div>
         </div>
     </div>
 
@@ -88,17 +92,20 @@
             _minValue = minValue;
         }
 
-        public override bool IsValid(object value)
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (value is null)
-                return true;
+                return ValidationResult.Success;
 
             if (value is double d)
             {
-                return d > _minValue;
+                if (d > _minValue)
+                    return ValidationResult.Success;
+                return new ValidationResult(ErrorMessage ?? $"Value must be greater than {_minValue}");
             }
-
-            return false;
+            
+            return ValidationResult.Success;
         }
+    }
     }
 }
